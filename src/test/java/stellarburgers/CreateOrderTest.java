@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import stellarburgers.api.AuthApi;
+import stellarburgers.api.IngredientsApi;
 import stellarburgers.api.OrderApi;
 import stellarburgers.dto.Order;
 import stellarburgers.dto.User;
@@ -25,16 +26,16 @@ public class CreateOrderTest {
 
     private AuthApi authApi;
     private OrderApi orderApi;
+    private IngredientsApi ingredientsApi;
     private String accessToken;
 
-    private static final String VALID_INGREDIENT_1 = "61c0c5a71d1f82001bdaaa6d";
-    private static final String VALID_INGREDIENT_2 = "61c0c5a71d1f82001bdaaa6f";
     private static final String INVALID_HASH = "000000000000000000000000";
 
     @BeforeEach
     void setUp() {
         authApi = new AuthApi();
         orderApi = new OrderApi();
+        ingredientsApi = new IngredientsApi();
 
         String uniqueEmail = "user" + System.currentTimeMillis() + "@mail.ru";
         User user = new User(uniqueEmail, "12345678", "TestName");
@@ -54,12 +55,14 @@ public class CreateOrderTest {
     @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Создание заказа с авторизацией и валидными ингредиентами")
     void createOrderWithAuthTest() {
-        List<String> ingredients = Arrays.asList(VALID_INGREDIENT_1, VALID_INGREDIENT_2);
+        String ingredient1 = ingredientsApi.getValidIngredientId();
+        String ingredient2 = ingredientsApi.getIngredients().getData().get(1).get_id();
+
+        List<String> ingredients = Arrays.asList(ingredient1, ingredient2);
         Order order = new Order(ingredients);
 
         Response response = orderApi.createOrderWithAuth(accessToken, order);
 
-        // Проверяем строго по документации
         response.then()
                 .statusCode(200)
                 .body("success", is(true))
@@ -71,7 +74,10 @@ public class CreateOrderTest {
     @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Создание заказа без авторизации (анонимный заказ)")
     void createOrderWithoutAuthTest() {
-        List<String> ingredients = Collections.singletonList(VALID_INGREDIENT_1);
+
+        String ingredient = ingredientsApi.getValidIngredientId();
+
+        List<String> ingredients = Collections.singletonList(ingredient);
         Order order = new Order(ingredients);
 
         Response response = orderApi.createOrderWithoutAuth(order);

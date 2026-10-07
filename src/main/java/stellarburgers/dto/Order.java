@@ -1,16 +1,13 @@
 package stellarburgers.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
     private List<String> ingredients;
-
-    public Order() {}
-
-    public Order(List<String> ingredients) {
-        this.ingredients = ingredients;
-    }
-
-    public List<String> getIngredients() { return ingredients; }
-    public void setIngredients(List<String> ingredients) { this.ingredients = ingredients; }
 }
